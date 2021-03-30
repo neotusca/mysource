@@ -7,7 +7,6 @@ NIC_DEV_STATUS_FILE='/proc/net/dev'
 
 
 def args_chk(argv,devices):
-     
     if len(argv) == 2:
         for device in devices:
             if argv[1] == device:
@@ -16,19 +15,19 @@ def args_chk(argv,devices):
                 print_help(devices)
     else:
         print_help(devices)
-        
-
- 
-   
     return 0
 
 
 def print_help(devices):
         print ""
-        print "    Usage : ",sys.argv[0]
+        print "    Usage : ",sys.argv[0],"[net_device] [options] [time_interval default:2]"
         print ""
-        print "[device_name]"
+        print "    [net_device]"
         print_list(devices)
+        print "    [options]"
+        print "    -t : check transmit traffic (default)"
+        print "    -r : check receive traffic"
+
 
 def print_list(list):
     for element in list:
@@ -45,24 +44,42 @@ def dev_fileread(device_file,mode):
     f = open(device_file,'r')
     content = f.read()
     f.close()
+    #print('--------1--------')
+    #print(content,type(content))
     tmp_list1 = content.split("\n")
     tmp_list1.remove('')
+    #print('--------2--------')
+    #print(tmp_list1,type(tmp_list1))
 
     tmp_list=[]
-    if mode == 1:
+    cnt=0
+    if mode == 1:    # get device-name 
         for tmp_record1 in tmp_list1:
-            #print tmp_record1, type(tmp_record1),'1-1'
-            tmp_record2 = tmp_record1.split(" ")
-            #print tmp_record2, type(tmp_record2),'1-2'
-            tmp_record3 = remove_blank(tmp_record2)
-            #print tmp_record3, type(tmp_record3),'1-3'
-            if tmp_record3[0] != 'lo:' and tmp_record3[0][-1] == ':':
-                #print tmp_record3[0],'1-4'
-                tmp_list.append(tmp_record3[0])
-    elif mode == 2:
+            if cnt < 2:             # skip garbage-data
+                #print(cnt)
+                cnt=cnt+1
+            else:
+                #print tmp_record1, type(tmp_record1),'1-1'   
+                tmp_record2 = tmp_record1.split(" ")     
+                #print tmp_record2, type(tmp_record2),'1-2'
+                tmp_record3 = remove_blank(tmp_record2)
+                #print tmp_record3, type(tmp_record3),'1-3'
+                if tmp_record3[0] != 'lo:' and tmp_record3[0][-1] == ':':
+                    #print tmp_record3[0],'1-4'          
+                    #print tmp_record3[0][:-1],'1-5'          
+                    tmp_list.append(tmp_record3[0][:-1])
+    elif mode == 2:   # to process network-data
         print 'mode 2'
-        
-        
+        ######################################
+        #print tmp_record1, type(tmp_record1),'1-1'
+        #tmp_record2 = tmp_record1.split(" ")
+        #print tmp_record2, type(tmp_record2),'1-2'
+        #tmp_record3 = remove_blank(tmp_record2)
+        #print tmp_record3, type(tmp_record3),'1-3'
+        #if tmp_record3[0] != 'lo:' and tmp_record3[0][-1] == ':':
+        #    print tmp_record3[0],'1-4'
+        #    tmp_list.append(tmp_record3[0])
+        ######################################
     return tmp_list
 
 def remove_blank(list):
